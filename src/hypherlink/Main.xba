@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Main" script:language="StarBasic">REM  *****  main entry  *****
+Option Explicit
+
+REM *****
+REM **進入點: 選擇 odf 檔案供轉換
+REM *****
+Function run()
+	Dim dlg, ret
+	Dim doc, cell, url, celltext, formula
+
+	init()
+	dlg = createunodialog(DialogLibraries.hypherlink.Dialog1)
+	ret = dlg.execute()
+	If ret = 0 Then Exit Function
+
+	doc = thiscomponent
+	cell = doc.currentSelection
+	cell.IsTextWrapped = true
+	url = trim(dlg.getControl(&quot;TextField2&quot;).Text)
+	url = dlg.getControl(&quot;ListBox1&quot;).selectedItem &amp; url
+	celltext = trim(dlg.getControl(&quot;TextField1&quot;).Text)
+	If celltext = &quot;&quot; Then celltext = url
+	formula = &quot;=HYPERLINK(&quot;&quot;&quot; &amp; url &amp; &quot;&quot;&quot;;&quot;&quot;&quot; &amp; celltext &amp; &quot;&quot;&quot;)&quot;
+	cell.setFormula(formula)
+    rem ----------------------------------------------------------------------
+    rem define variables
+    dim document   as object
+    dim dispatcher as object
+    rem ----------------------------------------------------------------------
+    rem get access to the document
+    document   = ThisComponent.CurrentController.Frame
+    dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+
+    rem ----------------------------------------------------------------------
+    rem dim args1(0) as new com.sun.star.beans.PropertyValue
+    rem args1(0).Name = "ToPoint"
+    rem args1(0).Value = "$D$16"
+
+    rem dispatcher.executeDispatch(document, ".uno:GoToCell", "", 0, args1())
+
+    rem ----------------------------------------------------------------------
+    dim args2(2) as new com.sun.star.beans.PropertyValue
+    args2(0).Name = "Underline.LineStyle"
+    args2(0).Value = 1
+    args2(1).Name = "Underline.HasColor"
+    args2(1).Value = false
+    args2(2).Name = "Underline.Color"
+    args2(2).Value = -1
+
+    dispatcher.executeDispatch(document, ".uno:Underline", "", 0, args2())
+
+    rem ----------------------------------------------------------------------
+    dim args3(0) as new com.sun.star.beans.PropertyValue
+    args3(0).Name = "Color"
+    args3(0).Value = 255
+
+    dispatcher.executeDispatch(document, ".uno:Color", "", 0, args3())
+End Function
+</script:module>

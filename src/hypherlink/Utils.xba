@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Utils" script:language="StarBasic" script:moduleType="normal">REM  *****  tools  *****
+Option Explicit
+
+REM *****
+REM **prepare for load modules
+REM *****
+function loadModules()
+	If BasicLibraries.HasByName(&quot;XrayTool&quot;) Then
+    	BasicLibraries.LoadLibrary(&quot;XrayTool&quot;)
+	End If
+	If BasicLibraries.HasByName(&quot;Tools&quot;) Then
+    	BasicLibraries.LoadLibrary(&quot;Tools&quot;)
+	End If
+End function
+
+REM *****
+REM **init: 前置函式
+REM *****
+function init()
+	loadModules()
+	dialogLibraries.loadLibrary(&quot;hypherlink&quot;)
+end function
+
+&apos;----------
+&apos;	Create and return a new com.sun.star.beans.PropertyValue.
+&apos;
+Function MakePropertyValue( Optional cName As String, Optional uValue ) As com.sun.star.beans.PropertyValue
+	dim oPropertyValue
+
+	oPropertyValue = createUnoStruct(&quot;com.sun.star.beans.PropertyValue&quot;)
+	If Not IsMissing(cName) Then
+		oPropertyValue.Name = cName
+	EndIf
+	If Not IsMissing(uValue) Then
+		oPropertyValue.Value = uValue
+	EndIf
+	MakePropertyValue() = oPropertyValue
+End Function
+
+REM *****
+REM **Create and return a new com.sun.star.beans.NamedValue.
+REM *****
+Function MakeNamedValue( Optional cName As String, Optional uValue ) As com.sun.star.beans.NamedValue
+	dim oPropertyValue
+
+	oPropertyValue = createUnoStruct(&quot;com.sun.star.beans.NamedValue&quot;)
+	If Not IsMissing(cName) Then
+		oPropertyValue.Name = cName
+	EndIf
+	If Not IsMissing(uValue) Then
+		oPropertyValue.Value = uValue
+	EndIf
+	MakeNamedValue() = oPropertyValue
+End Function
+
+REM *****
+REM **取得模組路徑
+REM *****
+Function getModulePath()
+	Dim oKey As Object
+	Dim oImage As Object
+	Dim sURL As String
+	Dim oMS As Object
+	
+	loadModules()
+
+	&apos;retrieve the URL from the registry
+	oKey = getRegistryKeyContent(&quot;org.openoffice.Office.Addons/AddonUI/Images/&quot;)
+	oImage = oKey.getByName(&quot;org.openoffice.Office.addon.odf2json.dummy&quot;)
+	sURL = oImage.URL
+	sURL = Join(Split(sURL, &quot;vnd.sun.star.expand:&quot;))
+	oMS = getProcessServiceManager().DefaultContext.getValueByName(&quot;/singletons/com.sun.star.util.theMacroExpander&quot;)
+	sURL = oMS.ExpandMacros(sURL)
+
+	&apos; 只保留前面的路徑
+	getModulePath() = Trim(sURL)
+End Function
+
+REM *****
+REM **取得 errorlog file 路徑
+REM *****
+Function errFileUrl()
+	errFileUrl = getModulePath() &amp; &quot;/err.log&quot;
+End Function
+
+REM *****
+REM **取得暫存檔名(該檔案還沒建立)
+REM *****
+function getTmpFileName()
+	dim ostream, uri
+
+	&apos; 開新暫存檔案，以該檔名為基礎傳回另一個檔名
+	ostream = createUnoService(&quot;com.sun.star.io.TempFile&quot;)
+	uri = ostream.uri + &quot;_&quot;
+
+	getTmpFileName() = uri
+end Function
+
+REM *****
+REM **save error to .txt
+REM *****
+Function saveError(msg)
+	Dim sfa, ostream, tstream
+	Dim ErLine, ErNum As Integer
+	Dim errlog, ErMsg As String
+	ErLine = Erl: ErNum = Err: ErMsg = Error
+	errlog = &quot;Error Line No. &quot; &amp; Chr$(9) &amp; &quot; : &quot; &amp; ErLine &amp; Chr$(10) _
+		&amp; &quot;Error Number &quot; &amp; Chr$(9) &amp; &quot; : &quot; &amp; ErNum &amp;Chr$(10) _
+		&amp; &quot;Error Message&quot; &amp; Chr$(9) &amp; &quot; : &quot; &amp; ErMsg
+
+	sfa = CreateUnoService(SimpleFileAccess)
+	ostream = sfa.openFileWrite(errFileUrl())
+	tstream = CreateUnoService(TextOutputStream)
+	tstream.setEncoding(&quot;UTF-8&quot;)
+	tstream.setOutputStream(ostream)
+	tstream.writeString(errlog)
+	ostream.closeOutput()
+
+	msgbox msg &amp; chr(10) &amp; chr(10) &amp; &quot;錯誤訊息已寫入：&quot; &amp; errFileUrl(), 0, &quot;發生錯誤&quot;
+End Function
+
+</script:module>
