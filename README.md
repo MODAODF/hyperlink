@@ -1,7 +1,7 @@
 ## hyperlink
 
 hyperlink for calc
-Calc url ? hypherlink ??
+Calc url 轉 hypherlink 工具
 
-## ??cpmlibre
+## 編譯cpmlibre
 	1. make
