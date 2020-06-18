@@ -3,59 +3,178 @@
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="Main" script:language="StarBasic">REM  *****  main entry  *****
 Option Explicit
 
+Dim oDlg as Object
+Dim isUrlStatus as Long
+Dim oCellName,oCellFormula as String
+
+Public Const HTTPSTR = &quot;http://&quot;
+Public Const MAILTOSTR = &quot;mailto:&quot;
+&apos;Public Const HYPERLINK = &quot;HYPERLINK&quot;
+
+
+REM *****
+REM ** url button
+REM *****
+Function url_button()
+	isUrlStatus = true
+	oDlg.getControl(&quot;Url_Label&quot;).Text = &quot;URL :&quot;
+	oDlg.getControl(&quot;Desc_Label&quot;).Text = &quot;輸入網址與名稱&quot;
+	&apos;oDlg.getControl(&quot;Url_Button&quot;).Enable = false
+	&apos;oDlg.getControl(&quot;Mail_Button&quot;).Enable = true 
+End Function
+
+REM *****
+REM ** mail_button
+REM *****
+Function mail_button()
+	isUrlStatus = false
+	oDlg.getControl(&quot;Url_Label&quot;).Text = &quot;~收件人 :&quot;
+	oDlg.getControl(&quot;Desc_Label&quot;).Text = &quot;輸入郵件位置與名稱&quot;
+	&apos;oDlg.getControl(&quot;Mail_Button&quot;).Enable = false
+	&apos;oDlg.getControl(&quot;Url_Button&quot;).Enable = true
+End Function
+
+
 REM *****
 REM **進入點: 選擇 odf 檔案供轉換
 REM *****
 Function run()
-	Dim dlg, ret
-	Dim doc, cell, url, celltext, formula
+	Dim ret
+	Dim doc, cell, orig_url, curr_url, celltext, formula
+	Dim MyPos as long
 
 	init()
-	dlg = createunodialog(DialogLibraries.hypherlink.Dialog1)
-	ret = dlg.execute()
+	isUrlStatus = true
+	AddressOfCell()
+	&apos; Create the dialog
+	oDlg = createunodialog(DialogLibraries.hypherlink.Dialog1)
+	SetDefaultValue()
+	ret = oDlg.execute()
 	If ret = 0 Then Exit Function
-
+	&apos;
 	doc = thiscomponent
 	cell = doc.currentSelection
 	cell.IsTextWrapped = true
-	url = trim(dlg.getControl(&quot;TextField2&quot;).Text)
-	url = dlg.getControl(&quot;ListBox1&quot;).selectedItem &amp; url
-	celltext = trim(dlg.getControl(&quot;TextField1&quot;).Text)
-	If celltext = &quot;&quot; Then celltext = url
-	formula = &quot;=HYPERLINK(&quot;&quot;&quot; &amp; url &amp; &quot;&quot;&quot;;&quot;&quot;&quot; &amp; celltext &amp; &quot;&quot;&quot;)&quot;
-	cell.setFormula(formula)
-    rem ----------------------------------------------------------------------
-    rem define variables
+	orig_url = trim(oDlg.getControl(&quot;Addr_TextField&quot;).Text)
+	celltext = trim(oDlg.getControl(&quot;Text_TextField&quot;).Text)
+
+	If orig_url &lt;&gt; &quot;&quot; Then	
+		If isUrlStatus = true Then
+			If Instr(orig_url, HTTPSTR) = 0 Then 
+				curr_url = HTTPSTR + orig_url 
+			Else
+				curr_url = orig_url
+			End If
+		Else
+			curr_url = MAILTOSTR + orig_url
+		End If
+
+		If celltext = &quot;&quot; Then celltext = orig_url
+		formula = &quot;=HYPERLINK(&quot;&quot;&quot; &amp; curr_url &amp; &quot;&quot;&quot;;&quot;&quot;&quot; &amp; celltext &amp; &quot;&quot;&quot;)&quot;
+		cell.setFormula(formula)
+		&apos;
+		makeup()
+	End If
+End Function
+
+REM *****
+REM ** makeup
+REM *****
+Function makeup()
+    &apos; define variables
     dim document   as object
     dim dispatcher as object
-    rem ----------------------------------------------------------------------
-    rem get access to the document
+	&apos;
+    &apos; get access to the document
     document   = ThisComponent.CurrentController.Frame
-    dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-
-    rem ----------------------------------------------------------------------
-    rem dim args1(0) as new com.sun.star.beans.PropertyValue
-    rem args1(0).Name = "ToPoint"
-    rem args1(0).Value = "$D$16"
-
-    rem dispatcher.executeDispatch(document, ".uno:GoToCell", "", 0, args1())
-
-    rem ----------------------------------------------------------------------
+    dispatcher = createUnoService(&quot;com.sun.star.frame.DispatchHelper&quot;)
+    &apos;
     dim args2(2) as new com.sun.star.beans.PropertyValue
-    args2(0).Name = "Underline.LineStyle"
+    args2(0).Name = &quot;Underline.LineStyle&quot;
     args2(0).Value = 1
-    args2(1).Name = "Underline.HasColor"
+    args2(1).Name = &quot;Underline.HasColor&quot;
     args2(1).Value = false
-    args2(2).Name = "Underline.Color"
+    args2(2).Name = &quot;Underline.Color&quot;
     args2(2).Value = -1
 
-    dispatcher.executeDispatch(document, ".uno:Underline", "", 0, args2())
+    dispatcher.executeDispatch(document, &quot;.uno:Underline&quot;, &quot;&quot;, 0, args2())
 
     rem ----------------------------------------------------------------------
     dim args3(0) as new com.sun.star.beans.PropertyValue
-    args3(0).Name = "Color"
+    args3(0).Name = &quot;Color&quot;
     args3(0).Value = 255
 
-    dispatcher.executeDispatch(document, ".uno:Color", "", 0, args3())
+    dispatcher.executeDispatch(document, &quot;.uno:Color&quot;, &quot;&quot;, 0, args3())
+End Function
+
+REM *****
+REM ** GetCellVauleString
+REM *****
+Function GetCellVauleString(oSht, oCol, oRow)
+	Dim oDoc as Object
+	Dim oSheet as Object
+	Dim oCellType as Long
+	&apos;
+	oDoc = ThisComponent
+	oSheet = oDoc.getSheets().getByIndex(oSht)
+	&apos;
+	oCellName = oSheet.getCellByPosition(oCol, oRow ).String
+	oCellFormula = oSheet.getCellByPosition(oCol, oRow).Formula
+End Function
+
+REM *****
+REM ** AddressOfCell
+REM *****
+Function AddressOfCell()
+	Dim oDoc as Object
+	Dim oSel as Object
+	Dim oCellAddr as Object
+	Dim oActCol as Long, oActRow as Long
+	Dim oShtNo as Integer
+	&apos;
+	oDoc = ThisComponent
+	oSel = oDoc.CurrentController.getSelection()
+	oCellAddr = oSel.getCellAddress()	
+	oActCol = oCellAddr.Column
+	oActRow = oCellAddr.Row
+	oShtNo = oCellAddr.Sheet
+	&apos;
+	GetCellVauleString(oShtNo,oActCol,oActRow)
+End Function
+
+REM *****
+REM ** SetDefaultValue
+REM *****
+Function SetDefaultValue()
+	If oCellFormula &lt;&gt; &quot;&quot; Then
+		CheckStatus()
+		Dim i as Long
+		Dim oUrlList() as String
+		Dim oUrl as String
+		Dim oPrefix as String
+		&apos;
+		&apos;oPrefix = &quot;=&quot; + HYPERLINK + &quot;(&quot;&quot;&quot;
+		oUrlList = split(oCellFormula,&quot;;&quot;)
+		&apos;
+		If Instr(oCellFormula, MAILTOSTR) &lt;&gt; 0 Then
+			oUrl = MID(oUrlList(0), 20, Len(oUrlList(0))-20)
+		Else
+			oUrl = MID(oUrlList(0), 13, Len(oUrlList(0))-13)
+		End If
+		oDlg.getControl(&quot;Addr_TextField&quot;).Text = oUrl
+	End If
+
+	oDlg.getControl(&quot;Text_TextField&quot;).Text = oCellName
+End Function
+
+REM *****
+REM ** CheckStatus
+REM *****
+Function CheckStatus()
+	If Instr(oCellFormula, MAILTOSTR) &lt;&gt; 0 Then
+		mail_button()
+	Else
+		url_button()
+	End If
 End Function
 </script:module>

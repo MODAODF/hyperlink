@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE dlg:window PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "dialog.dtd">
-<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="Dialog1" dlg:left="13" dlg:top="77" dlg:width="349" dlg:height="57" dlg:closeable="true" dlg:moveable="true">
+<dlg:window xmlns:dlg="http://openoffice.org/2000/dialog" xmlns:script="http://openoffice.org/2000/script" dlg:id="Dialog1" dlg:left="59" dlg:top="77" dlg:width="259" dlg:height="73" dlg:closeable="true" dlg:moveable="true" dlg:title="NDC超連結">
  <dlg:styles>
   <dlg:style dlg:style-id="0" dlg:font-height="12"/>
+  <dlg:style dlg:style-id="1" dlg:font-height="9"/>
  </dlg:styles>
  <dlg:bulletinboard>
-  <dlg:button dlg:id="CommandButton1" dlg:tab-index="3" dlg:left="302" dlg:top="27" dlg:width="42" dlg:height="16" dlg:value="插入連~結" dlg:button-type="ok">
+  <dlg:button dlg:id="Url_Button" dlg:tab-index="5" dlg:left="10" dlg:top="7" dlg:width="40" dlg:height="16" dlg:value="網際網路">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:hypherlink.Main.url_button?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Mail_Button" dlg:tab-index="6" dlg:left="10" dlg:top="29" dlg:width="40" dlg:height="16" dlg:value="郵件">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:hypherlink.Main.mail_button?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:button dlg:id="Ok_Button" dlg:tab-index="3" dlg:left="206" dlg:top="50" dlg:width="42" dlg:height="16" dlg:value="確定" dlg:button-type="ok">
    <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:odf2json.Main.convert?language=Basic&amp;location=application" script:language="Script"/>
   </dlg:button>
-  <dlg:textfield dlg:id="TextField1" dlg:tab-index="1" dlg:left="35" dlg:top="26" dlg:width="260" dlg:height="16"/>
-  <dlg:textfield dlg:id="TextField2" dlg:tab-index="0" dlg:left="70" dlg:top="5" dlg:width="225" dlg:height="16"/>
-  <dlg:text dlg:style-id="0" dlg:id="Label1" dlg:tab-index="2" dlg:left="4" dlg:top="7" dlg:width="27" dlg:height="12" dlg:value="URL:"/>
-  <dlg:text dlg:style-id="0" dlg:id="Label2" dlg:tab-index="4" dlg:left="4" dlg:top="29" dlg:width="27" dlg:height="14" dlg:value="Text:"/>
-  <dlg:menulist dlg:id="ListBox1" dlg:tab-index="5" dlg:left="33" dlg:top="5" dlg:width="35" dlg:height="13" dlg:tabstop="false" dlg:spin="true">
-   <dlg:menupopup>
-    <dlg:menuitem dlg:value="http://" dlg:selected="true"/>
-    <dlg:menuitem dlg:value="https://"/>
-   </dlg:menupopup>
-  </dlg:menulist>
+  <dlg:button dlg:id="Cancel_Button" dlg:tab-index="7" dlg:left="156" dlg:top="50" dlg:width="42" dlg:height="16" dlg:value="取消" dlg:button-type="ok">
+   <script:event script:event-name="on-performaction" script:macro-name="vnd.sun.star.script:odf2json.Main.convert?language=Basic&amp;location=application" script:language="Script"/>
+  </dlg:button>
+  <dlg:text dlg:style-id="0" dlg:id="Url_Label" dlg:tab-index="2" dlg:left="55" dlg:top="9" dlg:width="29" dlg:height="12" dlg:value="~URL :" dlg:align="center"/>
+  <dlg:text dlg:style-id="0" dlg:id="Text_Label" dlg:tab-index="4" dlg:left="55" dlg:top="30" dlg:width="29" dlg:height="12" dlg:value=" 文字 :" dlg:align="center"/>
+  <dlg:textfield dlg:id="Addr_TextField" dlg:tab-index="0" dlg:left="89" dlg:top="7" dlg:width="160" dlg:height="16"/>
+  <dlg:textfield dlg:id="Text_TextField" dlg:tab-index="1" dlg:left="89" dlg:top="29" dlg:width="160" dlg:height="16"/>
+  <dlg:text dlg:style-id="1" dlg:id="Desc_Label" dlg:tab-index="8" dlg:left="10" dlg:top="50" dlg:width="79" dlg:height="11" dlg:value="輸入網址與名稱"/>
  </dlg:bulletinboard>
 </dlg:window>
