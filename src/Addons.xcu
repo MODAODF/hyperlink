@@ -20,8 +20,8 @@
 				<node oor:name="MenuItems">
 					<node oor:name="N002" oor:op="replace">
 						<prop oor:name="Title" oor:type="xs:string">
-							<value xml:lang="en">Hyperlink(NDC)...</value>
-                            <value xml:lang="zh-TW">NDC超連結(~K)...</value>
+							<value xml:lang="en">Hyperlink(MODA)...</value>
+                            <value xml:lang="zh-TW">MODA超連結(~K)...</value>
 						</prop>
 						<prop oor:name="URL" oor:type="xs:string">
 							<value>vnd.sun.star.script:hypherlink.Main.run?language=Basic&amp;location=application</value>
